@@ -1,0 +1,55 @@
+<html>
+	<body>
+		<button type="button" id="btn">Start</button>
+		 <script
+	  		src="http://code.jquery.com/jquery-3.2.1.min.js"
+	 	 	integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+	  		crossorigin="anonymous"></script>	
+
+		<script>
+
+			$(function(){
+
+				let mediaRecorder
+
+				navigator
+					.mediaDevices
+					.getUserMedia({ audio: true })
+					.then( stream => {
+						mediaRecorder = new MediaRecorder(stream)
+						let chucks = []
+						mediaRecorder.ondataavailable = data => {
+							chucks.push(data.data)
+						}
+
+						mediaRecorder.onstop = () =>{
+							const blob = new Blob(chucks, { type: 'audio/ogg; code=opus' })
+							const reader = new window.FileReader()
+							reader.readAsDataURL(blob)
+							reader.onloadend = () => {
+								const audio = document.createElement('audio')
+								audio.src = reader.result
+								audio.controls = true
+								$('body').append(audio)
+							}
+						}
+
+					}, err => {
+						$('body').append('<p>You must allow audio!</p>')
+					})
+					
+					$('#btn').click(function(){
+						if($(this).text() === 'Start'){
+							mediaRecorder.start()
+							$(this).text('Stop')
+						}else{
+							mediaRecorder.stop()
+							$(this).text('Start')
+						}
+					})
+			})
+
+		</script>
+	</body>
+
+</html>
